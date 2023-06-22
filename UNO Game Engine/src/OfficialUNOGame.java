@@ -178,15 +178,6 @@ public class OfficialUNOGame extends Game {
         }
     }
 
-    private List<CardColor> getCardColors() {
-        List<CardColor> colorList = new ArrayList<>();
-        colorList.add(MainCardColors.RED);
-        colorList.add(MainCardColors.BLUE);
-        colorList.add(MainCardColors.GREEN);
-        colorList.add(MainCardColors.YELLOW);
-        return colorList;
-    }
-
     @Override
     protected void createDeck() {
         List<Card> drawPile = new ArrayList<>(createNumberedCards());
@@ -197,21 +188,19 @@ public class OfficialUNOGame extends Game {
     }
 
     protected List<Card> createNumberedCards() {
-        List<Card> drawPile = new ArrayList<>(createNumberedCardsBasedOnColor(MainCardColors.RED));
-        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.BLUE));
-        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.GREEN));
-        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.YELLOW));
+        List<Card> drawPile = new ArrayList<>(createNumberedCardsBasedOnColor(MainCardColors.getRedColor()));
+        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.getBlueColor()));
+        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.getGreenColor()));
+        drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.getYellowColor()));
         return drawPile;
     }
 
-    protected List<Card> createNumberedCardsBasedOnColor(CardColor color) {
-        List<CardColor> colorList = new ArrayList<>();
-        colorList.add(color);
+    protected List<Card> createNumberedCardsBasedOnColor(List<CardColor> color) {
         List<Card> drawPile = new ArrayList<>();
-        drawPile.add(new Card(colorList, String.valueOf(0)));
+        drawPile.add(new Card(color, String.valueOf(0)));
         for (int i = 1; i < 10; i++) {
-            drawPile.add(new Card(colorList, String.valueOf(i)));
-            drawPile.add(new Card(colorList, String.valueOf(i)));
+            drawPile.add(new Card(color, String.valueOf(i)));
+            drawPile.add(new Card(color, String.valueOf(i)));
         }
         return drawPile;
     }
@@ -224,19 +213,17 @@ public class OfficialUNOGame extends Game {
     }
 
     protected List<Card> createCards(String symbol) {
-        List<Card> drawPile = new ArrayList<>(createTwoCards(MainCardColors.RED, symbol));
-        drawPile.addAll(createTwoCards(MainCardColors.BLUE, symbol));
-        drawPile.addAll(createTwoCards(MainCardColors.GREEN, symbol));
-        drawPile.addAll(createTwoCards(MainCardColors.YELLOW, symbol));
+        List<Card> drawPile = new ArrayList<>(createTwoCards(MainCardColors.getRedColor(), symbol));
+        drawPile.addAll(createTwoCards(MainCardColors.getBlueColor(), symbol));
+        drawPile.addAll(createTwoCards(MainCardColors.getGreenColor(), symbol));
+        drawPile.addAll(createTwoCards(MainCardColors.getYellowColor(), symbol));
         return drawPile;
     }
 
-    protected List<Card> createTwoCards(CardColor color, String symbol) {
-        List<CardColor> colorList = new ArrayList<>();
-        colorList.add(color);
+    protected List<Card> createTwoCards(List<CardColor> color, String symbol) {
         List<Card> drawPile = new ArrayList<>();
-        drawPile.add(new Card(colorList, symbol));
-        drawPile.add(new Card(colorList, symbol));
+        drawPile.add(new Card(color, symbol));
+        drawPile.add(new Card(color, symbol));
         return drawPile;
     }
 
@@ -256,7 +243,7 @@ public class OfficialUNOGame extends Game {
     }
 
     protected List<CardColor> createWildCardsColorList() {
-        return getCardColors();
+        return MainCardColors.getAllMainColors();
     }
 
     @Override

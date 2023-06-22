@@ -14,7 +14,6 @@ public abstract class Game {
             initializeRound();
             checkEndOfGame();
         }
-
     }
 
     protected void initializeRound() {
