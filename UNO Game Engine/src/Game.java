@@ -2,7 +2,6 @@ import java.util.*;
 
 public abstract class Game {
     private boolean endOfRound;
-// test comment
     private boolean endOfGame;
 
     protected final LinkedList<Player> players = new LinkedList<>();
@@ -39,8 +38,7 @@ public abstract class Game {
         System.out.println("Enter the number of players: ");
         int numberOfPlayers = scanner.nextInt();
         while (numberOfPlayers < 2 || numberOfPlayers > 10) { // throw exception
-            System.out.println("Number of players must be at least 2 and no more than 10." +
-                    "\nPlease enter a valid number: ");
+            System.out.println("Number of players must be at least 2 and no more than 10." + "\nPlease enter a valid number: ");
             numberOfPlayers = scanner.nextInt();
         }
         return numberOfPlayers;
