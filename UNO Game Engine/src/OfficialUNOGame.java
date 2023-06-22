@@ -389,7 +389,7 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected int getWinningScore() {
-        return 50;
+        return 500;
     }
 
     @Override
