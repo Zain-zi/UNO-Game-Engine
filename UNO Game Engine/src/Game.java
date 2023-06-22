@@ -2,7 +2,7 @@ import java.util.*;
 
 public abstract class Game {
     private boolean endOfRound;
-
+// test comment
     private boolean endOfGame;
 
     protected final LinkedList<Player> players = new LinkedList<>();
