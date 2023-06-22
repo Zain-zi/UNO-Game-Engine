@@ -1,7 +1,8 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private List<Card> cardsInHand;
+    private final List<Card> cardsInHand = new ArrayList<>();
     private final String name;
     private boolean UNO;
     private int score;
@@ -28,9 +29,7 @@ public class Player {
     }
 
     public void addCard(Card card) {
-        if (isUNO()) { // move it to implementation, in case developer wants to change the calling UNO rule
-            UNO = false;
-        }
+        UNO = false;
         cardsInHand.add(card);
     }
 
@@ -55,15 +54,24 @@ public class Player {
         return cardsInHand.contains(card);
     }
 
+    public boolean hasCard(String cardNotation) {
+        for (Card card : cardsInHand) {
+            if (card.getNotation().equals(cardNotation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean hasNoCards() {
         return cardsInHand.isEmpty();
     }
 
-    public void calledUNO() {
+    public void setUNO() {
         UNO = true;
     }
 
-    public boolean isUNO() {
+    public boolean hasCalledUNO() {
         return UNO;
     }
 

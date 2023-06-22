@@ -9,30 +9,86 @@ public class OfficialUNOGame extends Game {
     protected Card playCard(Player currentPlayer) {
         System.out.println("Enter a valid card to play.");
         String cardNotation = scanner.nextLine();
-        if (currentPlayer.getCardsInHand().size() == 2) {
-            playerCalledUNO(currentPlayer, cardNotation);
+        cardNotation = checkForUNO(currentPlayer, cardNotation);
+        while (!currentPlayer.hasCard(cardNotation)) {
+            System.out.println("Player does not have this card. Enter another card.");
+            cardNotation = scanner.nextLine();
         }
         Card card = currentPlayer.pickCardFromHand(cardNotation);
-        while (!colorIsValid(card) && !symbolIsValid(card)) {
-            System.out.println("Enter a playable card.");
+        while (!colorIsValid(card) && !symbolIsValid(card) || !currentPlayer.hasCard(cardNotation)) {
+            System.out.println("Player does not have this card or card is invalid. Enter another card.");
             cardNotation = scanner.nextLine();
-            card = currentPlayer.pickCardFromHand(cardNotation);
+            if (currentPlayer.hasCard(cardNotation)) {
+                card = currentPlayer.pickCardFromHand(cardNotation);
+            }
         }
+        card = currentPlayer.pickCardFromHand(cardNotation);
         return card;
     }
 
-    private static void playerCalledUNO(Player currentPlayer, String cardNotation) {
+    @Override
+    protected String checkForUNO(Player currentPlayer, String cardNotation) {
+        if (currentPlayer.getCardsInHand().size() == 2) {
+            playerCalledUNO(currentPlayer, cardNotation);
+            if (hasPlayerCalledUNO(currentPlayer)) {
+                System.out.println("You called UNO. Now enter a valid card to play.");
+                cardNotation = scanner.nextLine();
+            }
+        }
+        return cardNotation;
+    }
+
+    @Override
+    protected void playerCalledUNO(Player currentPlayer, String cardNotation) {
         if (cardNotation.equals("UNO")) {
-            currentPlayer.calledUNO();
+            currentPlayer.setUNO();
             System.out.println("Player called UNO");
         }
     }
 
     @Override
+    protected boolean hasPlayerCalledUNO(Player currentPlayer) {
+        return currentPlayer.hasCalledUNO();
+    }
+
+    @Override
+    protected void showWinnerOfGameAndScore() {
+        String winnerPlayer = "";
+        int winningScore = 0;
+        for (Player player : players) {
+            if (player.getScore() > winningScore) {
+                winningScore = player.getScore();
+                winnerPlayer = player.getName();
+            }
+        }
+        System.out.println("The winner of the game is " + winnerPlayer + " with a score of " + winningScore);
+    }
+
+    @Override
+    protected void showWinnerOfRoundAndScore() {
+        String winnerPlayer = "";
+        int winningScore = 0;
+        for (Player player : players) {
+            if (player.getScore() > winningScore) {
+                winningScore = player.getScore();
+                winnerPlayer = player.getName();
+            }
+        }
+        System.out.println("The winner of the round is " + winnerPlayer + " with a score of " + winningScore);
+    }
+
+    @Override
+    protected void showTopCardInDiscardPile() {
+        System.out.println("Top card in discard pile is " + deck.getTopCard());
+    }
+
+    @Override
     protected void playerDidNotCallUNO(Player currentPlayer) {
-        if (!currentPlayer.isUNO() && currentPlayer.getCardsInHand().size() == 1) {
+        if (!currentPlayer.hasCalledUNO() && currentPlayer.getCardsInHand().size() == 1) {
             currentPlayer.addCard(deck.drawCard());
             currentPlayer.addCard(deck.drawCard());
+            System.out.println("Player had two cards and did not call UNO. Player received a two card penalty.");
+            System.out.println(currentPlayer.getCardsInHand() + "\n");
         }
     }
 
@@ -91,7 +147,7 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected void showPlayerAndCards(Player currentPlayer) {
-        System.out.println(currentPlayer + "Cards in hand: ");
+        System.out.println(currentPlayer.getName() + " Cards in hand: ");
         System.out.println(currentPlayer.getCardsInHand());
     }
 
@@ -150,7 +206,7 @@ public class OfficialUNOGame extends Game {
     protected void changeColor() {
         System.out.println("Enter chosen color: ");
         String color = scanner.nextLine();
-        while (validateInputColor(color)) {
+        while (!isValidInputColor(color)) {
             System.out.println("Invalid color. Enter another: ");
             color = scanner.nextLine();
         }
@@ -162,7 +218,7 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
-    protected boolean validateInputColor(String inputColor) {
+    protected boolean isValidInputColor(String inputColor) {
         try {
             MainCardColors.valueOf(inputColor);
             return true;
@@ -187,6 +243,7 @@ public class OfficialUNOGame extends Game {
         deck = new Deck(drawPile);
     }
 
+    @Override
     protected List<Card> createNumberedCards() {
         List<Card> drawPile = new ArrayList<>(createNumberedCardsBasedOnColor(MainCardColors.getRedColor()));
         drawPile.addAll(createNumberedCardsBasedOnColor(MainCardColors.getBlueColor()));
@@ -195,6 +252,7 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<Card> createNumberedCardsBasedOnColor(List<CardColor> color) {
         List<Card> drawPile = new ArrayList<>();
         drawPile.add(new Card(color, String.valueOf(0)));
@@ -205,6 +263,7 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<Card> createActionCards() {
         List<Card> drawPile = new ArrayList<>(createCards("SKIP"));
         drawPile.addAll(createCards("REVERSE"));
@@ -212,6 +271,7 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<Card> createCards(String symbol) {
         List<Card> drawPile = new ArrayList<>(createTwoCards(MainCardColors.getRedColor(), symbol));
         drawPile.addAll(createTwoCards(MainCardColors.getBlueColor(), symbol));
@@ -220,6 +280,7 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<Card> createTwoCards(List<CardColor> color, String symbol) {
         List<Card> drawPile = new ArrayList<>();
         drawPile.add(new Card(color, symbol));
@@ -227,12 +288,14 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<Card> createWildCards() {
         List<Card> drawPile = new ArrayList<>(createFourWildCards("WILD"));
         drawPile.addAll(createFourWildCards("WILD DRAW FOUR"));
         return drawPile;
     }
 
+    @Override
     protected List<Card> createFourWildCards(String symbol) {
         List<CardColor> colorList = new ArrayList<>(createWildCardsColorList());
         List<Card> drawPile = new ArrayList<>();
@@ -242,6 +305,7 @@ public class OfficialUNOGame extends Game {
         return drawPile;
     }
 
+    @Override
     protected List<CardColor> createWildCardsColorList() {
         return MainCardColors.getAllMainColors();
     }
@@ -259,6 +323,9 @@ public class OfficialUNOGame extends Game {
     @Override
     protected void dealCardsToPlayers() {
         int cards = getNumberOfDealtCards();
+        for (Player player : players) {
+            player.getCardsInHand().clear();
+        }
         for (int i = 0; i < cards; i++) {
             for (Player player : players) {
                 player.addCard(deck.drawCard());
@@ -278,14 +345,25 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected void calculatePlayerScore() {
+        Player winnerPlayer = getWinnerPlayer();
         if (isEndOfRound()) {
             for (Player player : players) {
                 List<Card> cardsInHand = player.getCardsInHand();
                 for (Card card : cardsInHand) {
-                    player.setScore(player.getScore() + valueOfCard(card));
+                    winnerPlayer.setScore(winnerPlayer.getScore() + valueOfCard(card));
                 }
             }
         }
+    }
+
+    @Override
+    protected Player getWinnerPlayer() {
+        for (Player player : players) {
+            if (player.hasNoCards()) {
+                return player;
+            }
+        }
+        throw new RuntimeException("No winning player found.");
     }
 
     @Override
@@ -299,12 +377,19 @@ public class OfficialUNOGame extends Game {
         }
     }
 
+    @Override
     protected boolean isActionCard(Card card) {
-        return (card.getSymbol().equals("SKIP") || card.getSymbol().equals("REVERSE") || card.getSymbol().equals("DRAW 2"));
+        return (card.getSymbol().equals("SKIP") || card.getSymbol().equals("REVERSE") || card.getSymbol().equals("DRAW TWO"));
     }
 
+    @Override
     protected boolean isWildCard(Card card) {
         return (card.getSymbol().equals("WILD") || card.getSymbol().equals("WILD DRAW FOUR"));
+    }
+
+    @Override
+    protected int getWinningScore() {
+        return 50;
     }
 
     @Override
@@ -314,11 +399,6 @@ public class OfficialUNOGame extends Game {
                 endRound();
             }
         }
-    }
-
-    @Override
-    protected int getWinningScore() {
-        return 500;
     }
 
     @Override

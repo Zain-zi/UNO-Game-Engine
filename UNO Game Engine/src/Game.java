@@ -14,9 +14,11 @@ public abstract class Game {
             initializeRound();
             checkEndOfGame();
         }
+        showWinnerOfGameAndScore();
     }
 
     protected void initializeRound() {
+        startRound();
         createDeck();
         shuffleCards();
         dealCardsToPlayers();
@@ -26,6 +28,7 @@ public abstract class Game {
             checkEndOfRound();
         }
         calculatePlayerScore();
+        showWinnerOfRoundAndScore();
     }
 
     protected void initializeGame() {
@@ -52,10 +55,12 @@ public abstract class Game {
     protected void turn() {
         Player currentPlayer = players.getFirst();
         showPlayerAndCards(currentPlayer);
+        showTopCardInDiscardPile();
         if (noMatchingCardsInPlayerHand(currentPlayer)) {
             try {
                 drawCardFromDrawPile(currentPlayer);
             } catch (RuntimeException e) {
+                System.out.println("Drawn card does not match. Ending turn. \n");
                 endTurn();
                 return;
             }
@@ -65,7 +70,20 @@ public abstract class Game {
         playerDidNotCallUNO(currentPlayer);
         endTurn();
         applyRules(card);
+        System.out.println();
     }
+
+    protected abstract void showWinnerOfRoundAndScore();
+
+    protected abstract String checkForUNO(Player currentPlayer, String cardNotation);
+
+    protected abstract void playerCalledUNO(Player currentPlayer, String cardNotation);
+
+    protected abstract boolean hasPlayerCalledUNO(Player currentPlayer);
+
+    protected abstract void showWinnerOfGameAndScore();
+
+    protected abstract void showTopCardInDiscardPile();
 
     protected abstract void playerDidNotCallUNO(Player currentPlayer);
 
@@ -103,11 +121,27 @@ public abstract class Game {
 
     protected abstract void changeColor();
 
-    protected abstract boolean validateInputColor(String inputColor);
+    protected abstract boolean isValidInputColor(String inputColor);
 
     protected abstract void drawFourPenalty();
 
     protected abstract void createDeck();
+
+    protected abstract List<Card> createNumberedCards();
+
+    protected abstract List<Card> createNumberedCardsBasedOnColor(List<CardColor> color);
+
+    protected abstract List<Card> createActionCards();
+
+    protected abstract List<Card> createCards(String symbol);
+
+    protected abstract List<Card> createTwoCards(List<CardColor> color, String symbol);
+
+    protected abstract List<Card> createWildCards();
+
+    protected abstract List<Card> createFourWildCards(String symbol);
+
+    protected abstract List<CardColor> createWildCardsColorList();
 
     protected abstract void afterDeckCreationHook(List<Card> deck);
 
@@ -123,11 +157,19 @@ public abstract class Game {
 
     protected abstract void checkEndOfRound();
 
+    protected abstract boolean isWildCard(Card card);
+
     protected abstract int getWinningScore();
 
     protected abstract void checkEndOfGame();
 
+    protected abstract Player getWinnerPlayer();
+
     protected abstract int valueOfCard(Card card);
+
+    protected void startRound() {
+        endOfRound = false;
+    }
 
     protected void endRound() {
         endOfRound = true;
@@ -143,14 +185,5 @@ public abstract class Game {
 
     protected boolean isEndOfGame() {
         return endOfGame;
-    }
-
-    protected Deque<Player> getPlayers() {
-
-        return players;
-    }
-
-    protected Deck getDeck() {
-        return deck;
     }
 }
