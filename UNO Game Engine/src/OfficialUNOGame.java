@@ -177,7 +177,7 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected void reverseTurnsPenalty() {
-        players.addFirst(players.getLast());
+        players.addFirst(players.removeLast());
         Collections.reverse(players);
     }
 
