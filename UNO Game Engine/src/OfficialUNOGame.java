@@ -237,7 +237,8 @@ public class OfficialUNOGame extends Game {
         skipPlayerPenalty();
     }
 
-    private Player getNextPlayer() {
+    @Override
+    protected Player getNextPlayer() {
         return players.get(1);
     }
 

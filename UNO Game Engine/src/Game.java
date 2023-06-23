@@ -131,6 +131,8 @@ public abstract class Game {
 
     protected abstract void drawFourPenalty();
 
+    protected abstract Player getNextPlayer();
+
     protected abstract void createDeck();
 
     protected abstract List<Card> createNumberedCards();
