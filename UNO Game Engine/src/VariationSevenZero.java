@@ -6,10 +6,12 @@ public class VariationSevenZero extends OfficialUNOGame {
     protected int getNumberOfDealtCards() {
         return 3;
     }
+
     @Override
     protected int getWinningScore() {
         return 50;
     }
+
     @Override
     protected void applyRules(Card card) {
         if (isZeroCard(card)) {
@@ -36,10 +38,6 @@ public class VariationSevenZero extends OfficialUNOGame {
         applySevenCardRule();
     }
 
-    protected boolean isSevenCard(Card card) {
-        return (card.getSymbol().equals("7"));
-    }
-
     protected void applyZeroCardRule() {
         System.out.println("A zero card was played. \nAll cards will be swapped.");
         LinkedList<List<Card>> allHands = new LinkedList<>();
@@ -50,6 +48,10 @@ public class VariationSevenZero extends OfficialUNOGame {
         for (int i = 0; i < players.size(); i++) {
             players.get(i).setCardsInHand(allHands.get(i));
         }
+    }
+
+    protected boolean isSevenCard(Card card) {
+        return (card.getSymbol().equals("7"));
     }
 
     protected boolean isZeroCard(Card card) {
