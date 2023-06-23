@@ -3,15 +3,13 @@ import java.util.List;
 
 public class OfficialUNOGame extends Game {
 
-    private final Scanner scanner = new Scanner(System.in);
-
     @Override
     protected Card playCard(Player currentPlayer) {
         System.out.println("Enter a valid card to play.");
         String cardNotation = scanner.nextLine();
         cardNotation = checkForUNO(currentPlayer, cardNotation);
         while (!currentPlayer.hasCard(cardNotation)) {
-            System.out.println("Player does not have this card. Enter another card.");
+            System.out.println("Player does not have this card or card is invalid. Enter another card.");
             cardNotation = scanner.nextLine();
         }
         Card card = currentPlayer.pickCardFromHand(cardNotation);
@@ -61,7 +59,7 @@ public class OfficialUNOGame extends Game {
                 winnerPlayer = player.getName();
             }
         }
-        System.out.println("The winner of the game is " + winnerPlayer + " with a score of " + winningScore);
+        System.out.println("The winner of the game is " + winnerPlayer + " with a score of " + winningScore + "\n");
     }
 
     @Override
@@ -74,7 +72,7 @@ public class OfficialUNOGame extends Game {
                 winnerPlayer = player.getName();
             }
         }
-        System.out.println("The winner of the round is " + winnerPlayer + " with a score of " + winningScore);
+        System.out.println("The winner of the round is " + winnerPlayer + " with a score of " + winningScore + "\n");
     }
 
     @Override
@@ -171,18 +169,22 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected void drawTwoPenalty() {
-        players.getFirst().addCard(deck.drawCard());
-        players.getFirst().addCard(deck.drawCard());
+        System.out.println("\nNext player has two new cards as penalty.\n");
+        getNextPlayer().addCard(deck.drawCard());
+        getNextPlayer().addCard(deck.drawCard());
+        skipPlayerPenalty();
     }
 
     @Override
     protected void reverseTurnsPenalty() {
-        players.addFirst(players.removeLast());
+        System.out.println("\nReversing turns.\n");
         Collections.reverse(players);
+        players.addFirst(players.removeLast());
     }
 
     @Override
     protected void skipPlayerPenalty() {
+        System.out.println("\nSkipping next player.\n");
         endTurn();
     }
 
@@ -230,8 +232,13 @@ public class OfficialUNOGame extends Game {
     @Override
     protected void drawFourPenalty() {
         for (int i = 0; i < 4; i++) {
-            players.getFirst().addCard(deck.drawCard());
+            getNextPlayer().addCard(deck.drawCard());
         }
+        skipPlayerPenalty();
+    }
+
+    private Player getNextPlayer() {
+        return players.get(1);
     }
 
     @Override
@@ -385,6 +392,15 @@ public class OfficialUNOGame extends Game {
     @Override
     protected boolean isWildCard(Card card) {
         return (card.getSymbol().equals("WILD") || card.getSymbol().equals("WILD DRAW FOUR"));
+    }
+
+    @Override
+    protected void sortPlayers() {
+        players.sort(Comparator.comparing(Player::getName));
+    }
+    @Override
+    protected Player getCurrentPlayer() {
+        return players.getFirst();
     }
 
     @Override

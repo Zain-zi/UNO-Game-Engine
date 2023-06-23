@@ -1,6 +1,7 @@
 import java.util.*;
 
 public abstract class Game {
+    protected final Scanner scanner = new Scanner(System.in);
     private boolean endOfRound;
     private boolean endOfGame;
 
@@ -18,6 +19,7 @@ public abstract class Game {
     }
 
     protected void initializeRound() {
+        sortPlayers();
         startRound();
         createDeck();
         shuffleCards();
@@ -30,6 +32,8 @@ public abstract class Game {
         calculatePlayerScore();
         showWinnerOfRoundAndScore();
     }
+
+    protected abstract void sortPlayers();
 
     protected void initializeGame() {
         definePlayers(getNumberOfPlayers());
@@ -53,7 +57,7 @@ public abstract class Game {
     }
 
     protected void turn() {
-        Player currentPlayer = players.getFirst();
+        Player currentPlayer = getCurrentPlayer();
         showPlayerAndCards(currentPlayer);
         showTopCardInDiscardPile();
         if (noMatchingCardsInPlayerHand(currentPlayer)) {
@@ -68,10 +72,12 @@ public abstract class Game {
         Card card = playCard(currentPlayer);
         discardPlayedCardIntoDiscardPile(card, currentPlayer);
         playerDidNotCallUNO(currentPlayer);
-        endTurn();
         applyRules(card);
+        endTurn();
         System.out.println();
     }
+
+    protected abstract Player getCurrentPlayer();
 
     protected abstract void showWinnerOfRoundAndScore();
 

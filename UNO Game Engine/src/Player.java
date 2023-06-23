@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private final List<Card> cardsInHand = new ArrayList<>();
+    private List<Card> cardsInHand = new ArrayList<>();
     private final String name;
     private boolean UNO;
     private int score;
@@ -28,11 +28,9 @@ public class Player {
         this.score = score;
     }
 
-    public void addCard(Card card) {
-        UNO = false;
-        cardsInHand.add(card);
+    public void setCardsInHand(List<Card> cardsInHand) {
+        this.cardsInHand = cardsInHand;
     }
-
     public Card pickCardFromHand(String cardNotation) {
         for (Card card : cardsInHand) {
             if (card.getNotation().equals(cardNotation)) {
@@ -48,6 +46,11 @@ public class Player {
         } else {
             throw new RuntimeException("Player doesn't have this card.");
         }
+    }
+
+    public void addCard(Card card) {
+        UNO = false;
+        cardsInHand.add(card);
     }
 
     public boolean hasCard(Card card) {
