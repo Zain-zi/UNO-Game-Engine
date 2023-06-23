@@ -31,6 +31,7 @@ public class Player {
     public void setCardsInHand(List<Card> cardsInHand) {
         this.cardsInHand = cardsInHand;
     }
+
     public Card pickCardFromHand(String cardNotation) {
         for (Card card : cardsInHand) {
             if (card.getNotation().equals(cardNotation)) {
@@ -53,10 +54,6 @@ public class Player {
         cardsInHand.add(card);
     }
 
-    public boolean hasCard(Card card) {
-        return cardsInHand.contains(card);
-    }
-
     public boolean hasCard(String cardNotation) {
         for (Card card : cardsInHand) {
             if (card.getNotation().equals(cardNotation)) {
@@ -64,6 +61,10 @@ public class Player {
             }
         }
         return false;
+    }
+
+    public boolean hasCard(Card card) {
+        return cardsInHand.contains(card);
     }
 
     public boolean hasNoCards() {

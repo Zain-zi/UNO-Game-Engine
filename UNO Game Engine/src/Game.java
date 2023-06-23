@@ -2,11 +2,9 @@ import java.util.*;
 
 public abstract class Game {
     protected final Scanner scanner = new Scanner(System.in);
+    protected final LinkedList<Player> players = new LinkedList<>();
     private boolean endOfRound;
     private boolean endOfGame;
-
-    protected final LinkedList<Player> players = new LinkedList<>();
-
     protected Deck deck;
 
     public void play() {

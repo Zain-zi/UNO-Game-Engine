@@ -399,6 +399,7 @@ public class OfficialUNOGame extends Game {
     protected void sortPlayers() {
         players.sort(Comparator.comparing(Player::getName));
     }
+
     @Override
     protected Player getCurrentPlayer() {
         return players.getFirst();
