@@ -5,6 +5,14 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected Card playCard(Player currentPlayer) {
+        String cardNotation = getValidCardNotationFromPlayer(currentPlayer);
+        Card card;
+        card = currentPlayer.pickCardFromHand(cardNotation);
+        return card;
+    }
+
+    @Override
+    protected String getValidCardNotationFromPlayer(Player currentPlayer) {
         System.out.println("Enter a valid card to play.");
         String cardNotation = scanner.nextLine();
         cardNotation = checkForUNO(currentPlayer, cardNotation);
@@ -20,8 +28,7 @@ public class OfficialUNOGame extends Game {
                 card = currentPlayer.pickCardFromHand(cardNotation);
             }
         }
-        card = currentPlayer.pickCardFromHand(cardNotation);
-        return card;
+        return cardNotation;
     }
 
     @Override
@@ -50,32 +57,6 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
-    protected void showWinnerOfGameAndScore() {
-        String winnerPlayer = "";
-        int winningScore = 0;
-        for (Player player : players) {
-            if (player.getScore() > winningScore) {
-                winningScore = player.getScore();
-                winnerPlayer = player.getName();
-            }
-        }
-        System.out.println("The winner of the game is " + winnerPlayer + " with a score of " + winningScore + "\n");
-    }
-
-    @Override
-    protected void showWinnerOfRoundAndScore() {
-        String winnerPlayer = "";
-        int winningScore = 0;
-        for (Player player : players) {
-            if (player.getScore() > winningScore) {
-                winningScore = player.getScore();
-                winnerPlayer = player.getName();
-            }
-        }
-        System.out.println("The winner of the round is " + winnerPlayer + " with a score of " + winningScore + "\n");
-    }
-
-    @Override
     protected void showTopCardInDiscardPile() {
         System.out.println("Top card in discard pile is " + deck.getTopCard());
     }
@@ -91,7 +72,7 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
-    protected void validateCard(Card card) {
+    protected void validateCardAgainstTopCard(Card card) {
         if (!colorIsValid(card) && !symbolIsValid(card)) {
             throw new RuntimeException("Card does not match.");
         }
@@ -127,7 +108,7 @@ public class OfficialUNOGame extends Game {
         currentPlayer.addCard(drawnCard);
         showPlayerAndCards(currentPlayer);
         try {
-            validateCard(drawnCard);
+            validateCardAgainstTopCard(drawnCard);
         } catch (RuntimeException e) {
             throw new RuntimeException("Drawn card does not match");
         }
@@ -189,11 +170,6 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
-    protected void endTurn() {
-        players.addLast(players.remove());
-    }
-
-    @Override
     protected void applyWildCardRules(Card card) {
         switch (card.getSymbol()) {
             case "WILD" -> changeColor();
@@ -202,6 +178,11 @@ public class OfficialUNOGame extends Game {
                 drawFourPenalty();
             }
         }
+    }
+
+    @Override
+    protected void endTurn() {
+        players.addLast(players.remove());
     }
 
     @Override
@@ -243,12 +224,27 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
+    protected void sortPlayers() {
+        players.sort(Comparator.comparing(Player::getName));
+    }
+
+    @Override
+    protected Player getCurrentPlayer() {
+        return players.getFirst();
+    }
+
+    @Override
     protected void createDeck() {
         List<Card> drawPile = new ArrayList<>(createNumberedCards());
         drawPile.addAll(createActionCards());
         drawPile.addAll(createWildCards());
-        afterDeckCreationHook(drawPile);
+        modifyDeckHook(drawPile);
         deck = new Deck(drawPile);
+    }
+
+    @Override
+    protected void modifyDeckHook(List<Card> deck) {
+        // Do nothing
     }
 
     @Override
@@ -273,14 +269,14 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected List<Card> createActionCards() {
-        List<Card> drawPile = new ArrayList<>(createCards("SKIP"));
-        drawPile.addAll(createCards("REVERSE"));
-        drawPile.addAll(createCards("DRAW TWO"));
+        List<Card> drawPile = new ArrayList<>(createActionCardsBasedOnSymbol("SKIP"));
+        drawPile.addAll(createActionCardsBasedOnSymbol("REVERSE"));
+        drawPile.addAll(createActionCardsBasedOnSymbol("DRAW TWO"));
         return drawPile;
     }
 
     @Override
-    protected List<Card> createCards(String symbol) {
+    protected List<Card> createActionCardsBasedOnSymbol(String symbol) {
         List<Card> drawPile = new ArrayList<>(createTwoCards(MainCardColors.getRedColor(), symbol));
         drawPile.addAll(createTwoCards(MainCardColors.getBlueColor(), symbol));
         drawPile.addAll(createTwoCards(MainCardColors.getGreenColor(), symbol));
@@ -305,22 +301,11 @@ public class OfficialUNOGame extends Game {
 
     @Override
     protected List<Card> createFourWildCards(String symbol) {
-        List<CardColor> colorList = new ArrayList<>(createWildCardsColorList());
         List<Card> drawPile = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            drawPile.add(new Card(colorList, symbol));
+            drawPile.add(new Card(MainCardColors.getAllMainColors(), symbol));
         }
         return drawPile;
-    }
-
-    @Override
-    protected List<CardColor> createWildCardsColorList() {
-        return MainCardColors.getAllMainColors();
-    }
-
-    @Override
-    protected void afterDeckCreationHook(List<Card> deck) {
-        // Do nothing
     }
 
     @Override
@@ -365,6 +350,39 @@ public class OfficialUNOGame extends Game {
     }
 
     @Override
+    protected void showWinnerOfGameAndScore() {
+        System.out.println("The winner of the game is " + getWinnerPlayerName() + " with a score of " + getWinnerPlayerScore() + "\n");
+    }
+
+    @Override
+    protected void showWinnerOfRoundAndScore() {
+        System.out.println("The winner of the round is " + getWinnerPlayerName() + " with a score of " + getWinnerPlayerScore() + "\n");
+    }
+
+    @Override
+    protected int getWinnerPlayerScore() {
+        int winningScore = 0;
+        for (Player player : players) {
+            if (player.getScore() > winningScore) {
+                winningScore = player.getScore();
+            }
+        }
+        return winningScore;
+    }
+
+    @Override
+    protected String getWinnerPlayerName() {
+        String winnerPlayerName = "";
+        int winnerPlayerScore = getWinnerPlayerScore();
+        for (Player player : players) {
+            if (player.getScore() == winnerPlayerScore) {
+                winnerPlayerName = player.getName();
+            }
+        }
+        return winnerPlayerName;
+    }
+
+    @Override
     protected Player getWinnerPlayer() {
         for (Player player : players) {
             if (player.hasNoCards()) {
@@ -393,16 +411,6 @@ public class OfficialUNOGame extends Game {
     @Override
     protected boolean isWildCard(Card card) {
         return (card.getSymbol().equals("WILD") || card.getSymbol().equals("WILD DRAW FOUR"));
-    }
-
-    @Override
-    protected void sortPlayers() {
-        players.sort(Comparator.comparing(Player::getName));
-    }
-
-    @Override
-    protected Player getCurrentPlayer() {
-        return players.getFirst();
     }
 
     @Override

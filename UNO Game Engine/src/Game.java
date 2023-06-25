@@ -7,7 +7,7 @@ public abstract class Game {
     private boolean endOfGame;
     protected Deck deck;
 
-    public void play() {
+    public final void play() {
         initializeGame();
         while (!isEndOfGame()) {
             initializeRound();
@@ -16,7 +16,7 @@ public abstract class Game {
         showWinnerOfGameAndScore();
     }
 
-    protected void initializeRound() {
+    protected final void initializeRound() {
         sortPlayers();
         startRound();
         createDeck();
@@ -31,9 +31,7 @@ public abstract class Game {
         showWinnerOfRoundAndScore();
     }
 
-    protected abstract void sortPlayers();
-
-    protected void initializeGame() {
+    protected final void initializeGame() {
         definePlayers(getNumberOfPlayers());
     }
 
@@ -41,20 +39,20 @@ public abstract class Game {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the number of players: ");
         int numberOfPlayers = scanner.nextInt();
-        while (numberOfPlayers < 2 || numberOfPlayers > 10) { // throw exception
+        while (numberOfPlayers < 2 || numberOfPlayers > 10) {
             System.out.println("Number of players must be at least 2 and no more than 10." + "\nPlease enter a valid number: ");
             numberOfPlayers = scanner.nextInt();
         }
         return numberOfPlayers;
     }
 
-    protected void definePlayers(int numberOfPlayers) {
+    protected final void definePlayers(int numberOfPlayers) {
         for (int i = numberOfPlayers; i > 0; i--) {
             players.addFirst(new Player("P" + i));
         }
     }
 
-    protected void turn() {
+    protected final void turn() {
         Player currentPlayer = getCurrentPlayer();
         showPlayerAndCards(currentPlayer);
         showTopCardInDiscardPile();
@@ -75,9 +73,13 @@ public abstract class Game {
         System.out.println();
     }
 
+    protected abstract void sortPlayers();
+
     protected abstract Player getCurrentPlayer();
 
     protected abstract void showWinnerOfRoundAndScore();
+
+    protected abstract String getValidCardNotationFromPlayer(Player currentPlayer);
 
     protected abstract String checkForUNO(Player currentPlayer, String cardNotation);
 
@@ -86,6 +88,10 @@ public abstract class Game {
     protected abstract boolean hasPlayerCalledUNO(Player currentPlayer);
 
     protected abstract void showWinnerOfGameAndScore();
+
+    protected abstract int getWinnerPlayerScore();
+
+    protected abstract String getWinnerPlayerName();
 
     protected abstract void showTopCardInDiscardPile();
 
@@ -117,7 +123,7 @@ public abstract class Game {
 
     protected abstract Card playCard(Player player);
 
-    protected abstract void validateCard(Card card);
+    protected abstract void validateCardAgainstTopCard(Card card);
 
     protected abstract boolean symbolIsValid(Card card);
 
@@ -139,7 +145,7 @@ public abstract class Game {
 
     protected abstract List<Card> createActionCards();
 
-    protected abstract List<Card> createCards(String symbol);
+    protected abstract List<Card> createActionCardsBasedOnSymbol(String symbol);
 
     protected abstract List<Card> createTwoCards(List<CardColor> color, String symbol);
 
@@ -147,9 +153,7 @@ public abstract class Game {
 
     protected abstract List<Card> createFourWildCards(String symbol);
 
-    protected abstract List<CardColor> createWildCardsColorList();
-
-    protected abstract void afterDeckCreationHook(List<Card> deck);
+    protected abstract void modifyDeckHook(List<Card> deck);
 
     protected abstract void shuffleCards();
 
